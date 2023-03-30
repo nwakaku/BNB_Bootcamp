@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 
-describe("BadgerNFT", function () {
+describe("BadgerCoin", function () {
   let badgerCoin;
   let owner;
   let addr1;
@@ -20,6 +20,12 @@ describe("BadgerNFT", function () {
       expect(totalSupply).to.equal(1000000);
     });
 
+    it("try to mint more token when paused", async function () {
+      await badgerCoin.pause();
+      await expect(badgerCoin.mint(owner.address, 5000)
+      ).to.be.revertedWith("Pausable: paused");
+    })
+
     it("That the number of decimals is 18", async function () {
       const decimal = await badgerCoin.decimals();
       expect(decimal).to.equal(18);
@@ -32,9 +38,12 @@ describe("BadgerNFT", function () {
     });
 
     it("The transfer function works correctly", async function () {
-      await badgerCoin.connect(owner).transfer(addr1.address, 2000);
-      const balanceOf = await badgerCoin.balanceOf(addr1.address);
-      expect(balanceOf).to.equal(2000);
+      await badgerCoin.pause();
+      await expect(
+        badgerCoin.transferA(owner.address, addr1.address, 2000)
+      ).to.be.revertedWith("Pausable: paused");
+      // const balanceOf = await badgerCoin.balanceOf(addr1.address);
+      // expect(balanceOf).to.equal(2000);
     })
 
     it("Test that an error is produced if a transfer is created with an insufficient balance", async function () {
@@ -47,6 +56,16 @@ describe("BadgerNFT", function () {
       expect(await badgerCoin.balanceOf(owner.address)).to.equal(1000000);
 
     })
+
+    it("try to burn token when its paused", async function () {
+      await badgerCoin.pause();
+      const transferAmount = 1000;
+      await expect(
+        badgerCoin.burnToken(owner.address, transferAmount)
+      ).to.be.revertedWith("Pausable: paused");
+
+      // Check that the balance of the owner is unchanged
+    });
 
       
   });

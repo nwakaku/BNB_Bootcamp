@@ -1,0 +1,52 @@
+const { expect } = require("chai");
+
+describe("DogeCoin", function () {
+  let dogeCoin;
+  let owner;
+  let addr1;
+  let addr2;
+
+  beforeEach(async function () {
+    [owner, addr1, addr2] = await ethers.getSigners();
+    const DogeCoin = await ethers.getContractFactory("DogeCoin");
+    dogeCoin = await DogeCoin.deploy();
+  });
+
+  describe("minting and transferring", function () {
+    it("should increase total supply by 1000", async function () {
+      const initialTotalSupply = await dogeCoin.GetTotalSupply();
+      const expectedTotalSupply = initialTotalSupply + 1000;
+
+      await dogeCoin.increaseToken();
+
+      const actualTotalSupply = await dogeCoin.GetTotalSupply();
+
+      expect(actualTotalSupply).to.equal(expectedTotalSupply);
+    });
+
+    it("should only allow the owner to increase total supply", async function () {
+      await expect(dogeCoin.connect(addr1).increaseToken()).to.be.revertedWith(
+        "Only Owner can do this."
+      );
+    });
+  });
+
+  describe("transfer", function () {
+    it("should transfer tokens and emit correct events", async function () {
+      const amount = 2000;
+      const amounty = 2002000;
+
+      await expect(dogeCoin.transfer(addr1.address, amount))
+        .to.emit(dogeCoin, "transferEvent")
+        .withArgs(amount, addr1.address);
+
+      const ownerBalanceAfterTransfer = await dogeCoin.getUserBalance();
+      const addr1BalanceAfterTransfer = await dogeCoin
+        .connect(addr1.address)
+        .getUserBalance();
+
+      expect(ownerBalanceAfterTransfer).to.equal(1998000);
+      expect(addr1BalanceAfterTransfer).to.equal(2000);
+    });
+  });
+});

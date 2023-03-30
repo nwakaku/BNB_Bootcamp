@@ -3,8 +3,6 @@ pragma solidity ^0.8.18;
 
 contract DogeCoin {
 
-
-
     uint TotalSupply = 2000000;
     address owner;
 
@@ -41,10 +39,15 @@ contract DogeCoin {
         return TotalSupply;
     }
 
-    function increaseTotalSupply() public onlyOwner returns (uint results) {
+    function _mint() internal onlyOwner returns (uint results) {
         results = TotalSupply;
         TotalSupply += 1000;
+        balance[owner] += 1000;
         emit total(TotalSupply);
+    }
+
+    function increaseToken() public {
+        _mint();
     }
 
     function transfer(address recipient, uint amount) public {
